@@ -12,6 +12,22 @@ export class Product {
     required: true,
   })
   name: string;
+
+  @Prop({
+    type: String,
+    required: true,
+  })
+  brand: string;
+
+  @Prop({
+    type: String,
+    // required: true,
+    default: function () {
+      return `${this.images[0] || ''}`;
+    },
+  })
+  thumb: string;
+
   @Prop({
     type: [{ type: String }],
   })
@@ -24,19 +40,31 @@ export class Product {
   linkytb: string;
 
   @Prop({
-    type: Number,
+    type: String,
     required: true,
   })
-  price: Number;
+  price: string;
 
   @Prop({
     type: String,
   })
-  description: string;
+  infomations: string;
+
+  @Prop({
+    type: [{ type: { detailMoreInfoInnerText: String, subInnerText: String } }],
+    default: [],
+  })
+  extraInfo: Array<{ detailMoreInfoInnerText: string; subInnerText: string }>;
+
+  @Prop({
+    type: [{ type: { label: String, variants: [{ type: String }] } }],
+    default: [],
+  })
+  variants: Array<{ label: String; variants: Array<String> }>;
 
   @Prop({
     type: String,
-    enum: ['ram'],
+    enum: ['ram', 'laptop', 'smartphone'],
   })
   type: string;
 
@@ -46,7 +74,7 @@ export class Product {
       return this.type;
     },
   })
-  attributes: mongoose.Schema.Types.Mixed;
+  description: mongoose.Schema.Types.Mixed;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -64,7 +92,21 @@ export class Product {
     type: Number,
     default: 0,
   })
+  left: number;
+
+  @Prop({
+    type: Number,
+    default: 0,
+  })
   views: Number;
+
+  @Prop({
+    type: Number,
+    min: [1, 'Rating must be above or equal 1'],
+    max: [5, 'Rating must be below or equal 5'],
+    default: 1.0,
+  })
+  rating: Number;
   // @Prop({
   //   type: Date,
   // })

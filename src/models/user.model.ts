@@ -87,7 +87,7 @@ export class User {
   @Prop({ type: Date })
   OTPExpires: Date;
 
-  @Prop({ type: String })
+  @Prop({ type: String, default: null })
   tokenFirebase: string;
 
   matchPassword: Function;

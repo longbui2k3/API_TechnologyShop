@@ -165,4 +165,15 @@ export class ProductRepo {
       { new: true },
     );
   }
+  async updateLeftOfProduct(id: string, quantity: number) {
+    return await this.productModel.findByIdAndUpdate(
+      id,
+      {
+        $inc: {
+          left: quantity,
+        },
+      },
+      { new: true },
+    );
+  }
 }
