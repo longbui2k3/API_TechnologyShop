@@ -7,6 +7,9 @@ const COLLECTION_NAME = 'products';
 
 @Schema({ timestamps: true, collection: COLLECTION_NAME })
 export class Product {
+  @Prop({ type: mongoose.Schema.Types.ObjectId })
+  _id: string;
+
   @Prop({
     type: String,
     required: true,

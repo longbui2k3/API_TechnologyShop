@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, PipelineStage, Types } from 'mongoose';
+import mongoose, { ClientSession, Model, PipelineStage, Types } from 'mongoose';
 import { Product, ProductSchema } from '../product.model';
 import { UploadFiles } from 'src/utils/uploadFiles';
 import { BadRequestException } from '@nestjs/common';
@@ -165,15 +165,18 @@ export class ProductRepo {
       { new: true },
     );
   }
-  async updateLeftOfProduct(id: string, quantity: number) {
+  async updateLeftOfProduct(
+    body: { id: string; quantity: number },
+    session?: ClientSession,
+  ) {
     return await this.productModel.findByIdAndUpdate(
-      id,
+      body.id,
       {
         $inc: {
-          left: quantity,
+          left: body.quantity,
         },
       },
-      { new: true },
+      { new: true, session },
     );
   }
 }

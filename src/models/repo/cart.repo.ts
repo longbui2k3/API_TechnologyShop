@@ -1,11 +1,16 @@
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Cart } from '../cart.model';
-import { Model } from 'mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import { convertToObjectId, getSelectData, getUnselectData } from 'src/utils';
 import { BadRequestException } from '@nestjs/common';
+import { transaction } from 'src/helpers/transaction';
+import { Session } from 'inspector';
 
 export class CartRepo {
-  constructor(@InjectModel('Cart') private cartModel: Model<Cart>) {}
+  constructor(
+    @InjectModel('Cart') private cartModel: Model<Cart>,
+    @InjectConnection() private connection: Connection,
+  ) {}
 
   async checkItemExists(body: { userId: string; productId: string }) {
     const cart = await this.cartModel.findOne({
@@ -26,11 +31,14 @@ export class CartRepo {
       .populate({ path: 'items.product' });
   }
 
-  async addToCart(body: {
-    userId: string;
-    productId: string;
-    quantity: number;
-  }) {
+  async addToCart(
+    body: {
+      userId: string;
+      productId: string;
+      quantity: number;
+    },
+    session: ClientSession,
+  ) {
     let cart = await this.cartModel.findOne({
       user: body.userId,
       'items.product': body.productId,
@@ -44,26 +52,38 @@ export class CartRepo {
             items: { product: body.productId, quantity: body.quantity },
           },
         },
-        { new: true, upsert: true },
+        { new: true, upsert: true, session },
       );
       return cart;
     }
 
-    cart = await this.cartModel.findOneAndUpdate(
-      {
-        user: body.userId,
-        'items.product': body.productId,
-      },
-      {
-        $set: {
-          'items.$.product': body.productId,
+    cart = await this.cartModel
+      .findOneAndUpdate(
+        {
+          user: body.userId,
+          'items.product': body.productId,
         },
-        $inc: {
-          'items.$.quantity': body.quantity,
+        {
+          $set: {
+            'items.$.product': body.productId,
+          },
+          $inc: {
+            'items.$.quantity': body.quantity,
+          },
         },
-      },
-      { new: true, upsert: true },
+        { new: true, upsert: true, session },
+      )
+      .populate({ path: 'items.product' });
+    const selectedProduct = cart.items.find(
+      (product) => product.product._id.toString() === body.productId,
     );
+    console.log(selectedProduct.quantity);
+    console.log(selectedProduct.product.left);
+    if (selectedProduct.quantity > selectedProduct.product.left) {
+      throw new BadRequestException(
+        'The quantity of product in store is not enough to order!',
+      );
+    }
     return cart;
   }
 
@@ -119,11 +139,13 @@ export class CartRepo {
     return cart;
   }
 
-  async removeItemsFromCart(body: {
-    userId: string;
-    productIds: Array<string>;
-  }) {
-    
+  async removeItemsFromCart(
+    body: {
+      userId: string;
+      productIds: Array<string>;
+    },
+    session?: ClientSession,
+  ) {
     const cart = await this.cartModel.findOneAndUpdate(
       { user: body.userId },
       {
@@ -131,7 +153,7 @@ export class CartRepo {
           items: { product: { $in: body.productIds } },
         },
       },
-      { new: true },
+      { new: true, session },
     );
     return cart;
   }

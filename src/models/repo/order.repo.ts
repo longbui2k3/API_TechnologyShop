@@ -1,42 +1,37 @@
-import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { Order } from '../order.model';
-import { removeUndefinedInObject } from 'src/utils';
-import { transaction } from 'src/helpers/transaction';
 
 export class OrderRepo {
-  constructor(
-    @InjectModel('Order') private orderModel: Model<Order>,
-    @InjectConnection() private connection: Connection,
-  ) {}
+  constructor(@InjectModel('Order') private orderModel: Model<Order>) {}
 
-  async createOrder(body: {
-    user: string;
-    checkout: {
-      totalPrice: number;
-      totalApplyDiscount: number;
-      feeShip: number;
-      total: number;
-    };
-    shipping_address: string;
-    payment: string;
-    coin: number;
-    voucher: string;
-    products: Array<{ product: string; quantity: number }>;
-    phone: string;
-  }) {
-    return await transaction(this.connection, async (session) => {
-      await Promise.all(body.products.map(async (product, i) => {
-        
-      }));
-      const numberOfOrders = await this.orderModel.countDocuments({});
-      return await this.orderModel.create({
-        ...body,
-        trackingNumber: `#${numberOfOrders + 1}`,
-        status: 'pending',
-        deliveredDate: Date.now(),
-      });
+  async createOrder(
+    body: {
+      user: string;
+      checkout: {
+        totalPrice: number;
+        totalApplyDiscount: number;
+        feeShip: number;
+        total: number;
+      };
+      shipping_address: string;
+      payment: string;
+      coin: number;
+      voucher: string;
+      products: Array<{ product: string; quantity: number }>;
+      phone: string;
+    },
+    session?: ClientSession,
+  ) {
+    const numberOfOrders = await this.orderModel.countDocuments({});
+    const order = new this.orderModel({
+      ...body,
+      trackingNumber: `#${numberOfOrders + 1}`,
+      status: 'pending',
+      deliveredDate: Date.now(),
     });
+    await order.save({ session });
+    return order;
   }
 
   async findAllOrdersForUser(query: { user: string; sort: string }) {

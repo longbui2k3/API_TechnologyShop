@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { transaction } from 'src/helpers/transaction';
 import { CartRepo } from 'src/models/repo/cart.repo';
 import { ProductRepo } from 'src/models/repo/product.repo';
 import { UserRepo } from 'src/models/repo/user.repo';
@@ -9,6 +12,7 @@ export class CartService {
     private cartRepo: CartRepo,
     private userRepo: UserRepo,
     private productRepo: ProductRepo,
+    @InjectConnection() private connection: Connection,
   ) {}
   async getAllCarts(body: { userId: string }) {
     const checkUserExists = await this.userRepo.checkUserExists(body.userId);
@@ -28,18 +32,20 @@ export class CartService {
     productId: string;
     quantity: number;
   }) {
-    const checkUserExists = await this.userRepo.checkUserExists(body.userId);
-    const checkProductExists = await this.productRepo.checkProductExists(
-      body.productId,
-    );
-
-    return {
-      message: 'Add to cart successfully!',
-      status: 200,
-      metadata: {
-        cart: await this.cartRepo.addToCart(body),
-      },
-    };
+    return await transaction(this.connection, async (session) => {
+      const checkUserExists = await this.userRepo.checkUserExists(body.userId);
+      const checkProductExists = await this.productRepo.checkProductExists(
+        body.productId,
+      );
+      const cart = await this.cartRepo.addToCart(body, session);
+      return {
+        message: 'Add to cart successfully!',
+        status: 200,
+        metadata: {
+          cart,
+        },
+      };
+    });
   }
   async updateQuantityCart(body: {
     userId: string;

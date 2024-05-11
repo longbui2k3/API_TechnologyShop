@@ -16,7 +16,6 @@ export const transaction = async (
     await session.endSession();
     return result;
   } catch (err) {
-    await session.commitTransaction();
     await session.endSession();
     throw err;
   }
