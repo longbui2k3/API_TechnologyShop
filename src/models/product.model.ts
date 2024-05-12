@@ -13,14 +13,9 @@ export class Product {
   @Prop({
     type: String,
     required: true,
+    unique: true,
   })
   name: string;
-
-  @Prop({
-    type: String,
-    required: true,
-  })
-  brand: string;
 
   @Prop({
     type: String,
@@ -44,12 +39,12 @@ export class Product {
 
   @Prop({
     type: String,
-    required: true,
   })
   price: string;
 
   @Prop({
     type: String,
+    required: true,
   })
   sale_price: string;
 

@@ -18,9 +18,7 @@ import ProductFactory, { ProductService } from 'src/services/product.service';
 
 @Controller('/api/v1/product')
 export class ProductController {
-  constructor(
-    private productFactory: ProductFactory,
-  ) {}
+  constructor(private productFactory: ProductFactory) {}
 
   @Post('/')
   @HttpCode(201)
@@ -31,18 +29,22 @@ export class ProductController {
     body: {
       name: string;
       price: Number;
-      description: string;
+      sale_price: Number;
+      information: string;
       type: string;
-      attributes: Object;
+      description: Object;
       category: string;
       linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
     },
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|webp)$/,
         })
-        .addMaxSizeValidator({ maxSize: 50000 })
+        .addMaxSizeValidator({ maxSize: 200000 })
         .build({
           fileIsRequired: false,
         }),
@@ -62,11 +64,15 @@ export class ProductController {
     body: {
       name: string;
       price: Number;
-      description: string;
+      sale_price: Number;
+      information: string;
       type: string;
-      attributes: Object;
+      description: Object;
       category: string;
       linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
       images: Array<string>;
     },
     @UploadedFiles(
