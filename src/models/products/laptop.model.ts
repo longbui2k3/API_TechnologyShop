@@ -6,49 +6,11 @@ const COLLECTION_NAME = 'laptops';
 
 @Schema({ timestamps: true, collection: COLLECTION_NAME })
 export class Laptop {
-  @Prop({
-    type: String,
-    required: true,
-  })
-  status: string;
-  
-  @Prop({
-    type: String,
-    required: true,
-  })
-  warrantyPolicy: string;
+  @Prop({ type: String })
+  cpu: string;
 
-  @Prop({
-    type: String,
-    required: true,
-  })
-  origin: string;
-
-  @Prop({
-    type: String,
-    required: true,
-  })
-  usage_info: string;
-
-  @Prop({
-    type: String,
-  })
-  graphics_card: string;
-
-  @Prop({
-    type: String,
-  })
-  ram_capacity: string;
-
-  @Prop({
-    type: String,
-  })
-  ram_type: string;
-
-  @Prop({
-    type: String,
-  })
-  ram_slots: string;
+  @Prop({ type: String })
+  ram: string;
 
   @Prop({
     type: String,
@@ -58,32 +20,31 @@ export class Laptop {
   @Prop({
     type: String,
   })
-  screen_size: string;
+  screen: string;
 
   @Prop({
     type: String,
   })
-  screen_technology: string;
+  graphics_card: string;
 
   @Prop({
     type: String,
   })
-  battery: string;
+  port: string;
 
   @Prop({
     type: String,
   })
   operating_system: string;
 
-  @Prop({
-    type: String,
-  })
-  screen_resolution: string;
+  @Prop({ type: String })
+  design: string;
 
-  @Prop({
-    type: String,
-  })
-  port: string;
+  @Prop({ type: String })
+  size: string;
+
+  @Prop({ type: String })
+  released_date: string;
 }
 
 export const LaptopSchema = SchemaFactory.createForClass(Laptop);

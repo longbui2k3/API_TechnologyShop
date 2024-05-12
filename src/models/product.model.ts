@@ -51,23 +51,28 @@ export class Product {
   @Prop({
     type: String,
   })
-  infomations: string;
+  sale_price: string;
 
   @Prop({
-    type: [{ type: { detailMoreInfoInnerText: String, subInnerText: String } }],
+    type: String,
+  })
+  information: string;
+
+  @Prop({
+    type: [{ type: String }],
     default: [],
   })
-  extraInfo: Array<{ detailMoreInfoInnerText: string; subInnerText: string }>;
+  extraInfo: Array<string>;
 
   @Prop({
     type: [{ type: { label: String, variants: [{ type: String }] } }],
     default: [],
   })
-  variants: Array<{ label: String; variants: Array<String> }>;
+  variants: Array<{ label: string; variants: Array<string> }>;
 
   @Prop({
     type: String,
-    enum: ['ram', 'laptop', 'smartphone'],
+    enum: ['laptop', 'smartphone'],
   })
   type: string;
 
@@ -110,28 +115,6 @@ export class Product {
     default: 1.0,
   })
   rating: Number;
-  // @Prop({
-  //   type: Date,
-  // })
-  // expiresAt: Date;
-
-  // @Prop({
-  //   type: Date,
-  // })
-  // createdAt: Date;
-  // @Prop({
-  //   type: String,
-  //   default: 'accepted-pending',
-  //   enum: [
-  //     'showing',
-  //     'expired',
-  //     'rejected',
-  //     'accepted-pending',
-  //     'payment-pending',
-  //     'hidden',
-  //   ],
-  // })
-  // status: string;
 }
 // const expiredDate = 60 * 24 * 60 * 60 * 1000; // 60 days
 export const ProductSchema = SchemaFactory.createForClass(Product);

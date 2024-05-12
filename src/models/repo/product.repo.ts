@@ -43,11 +43,15 @@ export class ProductRepo {
       _id: mongoose.Types.ObjectId;
       name: string;
       price: Number;
-      description: string;
+      sale_price: Number;
+      information: string;
       type: string;
-      attributes: Object;
+      description: Object;
       category: string;
       linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
     },
     files: Array<Express.Multer.File> | [] = [],
   ) {
@@ -71,9 +75,14 @@ export class ProductRepo {
     body: {
       name: string;
       price: Number;
-      description: string;
+      sale_price: Number;
+      information: string;
+      description: Object;
       category: string;
       linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
       images: Array<string>;
     },
     files: Array<Express.Multer.File>,

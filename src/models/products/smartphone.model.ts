@@ -7,34 +7,34 @@ const COLLECTION_NAME = 'smartphones';
 @Schema({ timestamps: true, collection: COLLECTION_NAME })
 export class Smartphone {
   @Prop({ type: String })
-  technology: string;
+  screen: string;
 
   @Prop({ type: String })
-  dimensions: string;
+  operating_system: string;
 
   @Prop({ type: String })
-  weight: string;
+  front_camera: string;
 
   @Prop({ type: String })
-  display: string;
+  rear_camera: string;
 
   @Prop({ type: String })
-  resolution: string;
+  chip: string;
 
   @Prop({ type: String })
-  os: string;
+  ram: string;
 
   @Prop({ type: String })
-  chipset: string;
+  storage: string;
 
   @Prop({ type: String })
-  cpu: string;
+  sim: string;
 
   @Prop({ type: String })
-  internal: string;
+  battery: string;
 
   @Prop({ type: String })
-  camera: string;
+  brand: string;
 }
 
 export const SmartphoneSchema = SchemaFactory.createForClass(Smartphone);

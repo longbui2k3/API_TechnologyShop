@@ -1,23 +1,23 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { Laptop } from 'src/models/products/laptop.model';
-import { Ram } from 'src/models/products/ram.model';
+import { Smartphone } from 'src/models/products/smartphone.model';
 import { CategoryRepo } from 'src/models/repo/category.repo';
 import { ProductRepo } from 'src/models/repo/product.repo';
 import { LaptopRepo } from 'src/models/repo/products/laptop.repo';
-import { RamRepo } from 'src/models/repo/products/ram.repo';
+import { SmartphoneRepo } from 'src/models/repo/products/smartphone.repo';
 @Injectable()
 class ProductFactory {
   constructor(
-    private ramRepo: RamRepo,
     private laptopRepo: LaptopRepo,
+    private smartphoneRepo: SmartphoneRepo,
     private productRepo: ProductRepo,
     private categoryRepo: CategoryRepo,
   ) {}
   static productRegistry = {};
   productRegistryRepo = {
-    ram: this.ramRepo,
     laptop: this.laptopRepo,
+    smartphone: this.smartphoneRepo,
   };
   static registerProductType(type: string, classRef: any) {
     ProductFactory.productRegistry[type] = classRef;
@@ -29,11 +29,15 @@ class ProductFactory {
       body: {
         name: string;
         price: Number;
-        description: string;
+        sale_price: Number;
+        information: string;
         type: string;
-        attributes: Object;
+        description: Object;
         category: string;
         linkytb: string;
+        extraInfo: Array<string>;
+        variants: Array<{ label: string; variants: Array<string> }>;
+        left: Number;
       };
       files: Array<Express.Multer.File> | [];
     },
@@ -55,10 +59,14 @@ class ProductFactory {
       body: {
         name: string;
         price: Number;
-        description: string;
-        attributes: Object;
+        sale_price: Number;
+        information: string;
+        description: Object;
         category: string;
         linkytb: string;
+        extraInfo: Array<string>;
+        variants: Array<{ label: string; variants: Array<string> }>;
+        left: Number;
         images: Array<string>;
       };
       files: Array<Express.Multer.File> | [];
@@ -111,11 +119,15 @@ export class ProductService {
       _id: mongoose.Types.ObjectId;
       name: string;
       price: Number;
-      description: string;
+      sale_price: Number;
+      information: string;
       type: string;
-      attributes: Object;
+      description: Object;
       category: string;
       linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
     },
     files: Array<Express.Multer.File> | [],
   ) {
@@ -136,10 +148,14 @@ export class ProductService {
     body: {
       name: string;
       price: Number;
-      description: string;
-      attributes: Object;
+      sale_price: Number;
+      information: string;
+      description: Object;
       category: string;
       linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
       images: Array<string>;
     },
     files: Array<Express.Multer.File>,
@@ -204,50 +220,6 @@ export class ProductService {
 }
 
 @Injectable()
-class RamService extends ProductService {
-  constructor(
-    private ramRepo: RamRepo,
-    productRepo: ProductRepo,
-    categoryRepo: CategoryRepo,
-  ) {
-    super(productRepo, categoryRepo);
-  }
-  async createProduct(
-    body: {
-      name: string;
-      price: Number;
-      description: string;
-      type: string;
-      attributes: Ram;
-      category: string;
-      linkytb: string;
-    },
-    files: Array<Express.Multer.File> | [],
-  ) {
-    const newRam = await this.ramRepo.createRam(body.attributes);
-
-    return await super.addProduct({ ...body, _id: newRam._id }, files);
-  }
-
-  async updateProduct(
-    id: string,
-    body: {
-      name: string;
-      price: Number;
-      description: string;
-      attributes: Ram;
-      category: string;
-      linkytb: string;
-      images: Array<string>;
-    },
-    files: Array<Express.Multer.File> | [],
-  ) {
-    const updatedRam = await this.ramRepo.updateRam(id, body.attributes);
-    return await super.modifyProduct(id, body, files);
-  }
-}
-
-@Injectable()
 class LaptopService extends ProductService {
   constructor(
     private laptopRepo: LaptopRepo,
@@ -261,15 +233,19 @@ class LaptopService extends ProductService {
     body: {
       name: string;
       price: Number;
-      description: string;
+      sale_price: Number;
+      information: string;
       type: string;
-      attributes: Laptop;
+      description: Laptop;
       category: string;
       linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
     },
     files: Array<Express.Multer.File> | [],
   ) {
-    const newLaptop = await this.laptopRepo.createLaptop(body.attributes);
+    const newLaptop = await this.laptopRepo.createLaptop(body.description);
 
     return await super.addProduct({ ...body, _id: newLaptop._id }, files);
   }
@@ -279,22 +255,85 @@ class LaptopService extends ProductService {
     body: {
       name: string;
       price: Number;
-      description: string;
-      attributes: Laptop;
+      sale_price: Number;
+      information: string;
+      type: string;
+      description: Laptop;
       category: string;
       linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
       images: Array<string>;
     },
     files: Array<Express.Multer.File> | [],
   ) {
     const updatedLaptop = await this.laptopRepo.updateLaptop(
       id,
-      body.attributes,
+      body.description,
     );
     return await super.modifyProduct(id, body, files);
   }
 }
 
-ProductFactory.registerProductType('ram', RamService);
+@Injectable()
+class SmartphoneService extends ProductService {
+  constructor(
+    private smartphoneRepo: SmartphoneRepo,
+    productRepo: ProductRepo,
+    categoryRepo: CategoryRepo,
+  ) {
+    super(productRepo, categoryRepo);
+  }
+
+  async createProduct(
+    body: {
+      name: string;
+      price: Number;
+      sale_price: Number;
+      information: string;
+      type: string;
+      description: Smartphone;
+      category: string;
+      linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
+    },
+    files: Array<Express.Multer.File> | [],
+  ) {
+    const newSmartphone = await this.smartphoneRepo.createSmartphone(
+      body.description,
+    );
+
+    return await super.addProduct({ ...body, _id: newSmartphone._id }, files);
+  }
+
+  async updateProduct(
+    id: string,
+    body: {
+      name: string;
+      price: Number;
+      sale_price: Number;
+      information: string;
+      description: Smartphone;
+      category: string;
+      linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
+      images: Array<string>;
+    },
+    files: Array<Express.Multer.File> | [],
+  ) {
+    const updatedSmartphone = await this.smartphoneRepo.updateSmartphone(
+      id,
+      body.description,
+    );
+    return await super.modifyProduct(id, body, files);
+  }
+}
+
+ProductFactory.registerProductType('smartphone', SmartphoneService);
 ProductFactory.registerProductType('laptop', LaptopService);
 export default ProductFactory;
