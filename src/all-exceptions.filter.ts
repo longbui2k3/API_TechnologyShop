@@ -11,11 +11,9 @@ import { Connection } from 'mongoose';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(
-    private readonly httpAdapterHost: HttpAdapterHost,
-  ) {}
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
-  catch(exception: unknown, host: ArgumentsHost): void {
+  catch(exception: any, host: ArgumentsHost): void {
     // In certain situations `httpAdapter` might not be available in the
     // constructor method, thus we should resolve it here.
     const { httpAdapter } = this.httpAdapterHost;
@@ -26,13 +24,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
-    console.log(exception);
+    console.log(typeof exception);
     const responseBody =
       exception instanceof HttpException
         ? exception.getResponse()
         : {
-            message: 'Internal Server Error',
-            error: 'Internal Server Error',
+            message: exception.name || 'Internal Server Error',
+            error: exception.message,
             statusCode: httpStatus,
           };
 

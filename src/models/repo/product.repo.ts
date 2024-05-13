@@ -126,10 +126,10 @@ export class ProductRepo {
   }
 
   async getAllProducts(query: {
-    filter: { category: string };
-    search: string;
-    sort: string;
-    unselect: Array<string>;
+    filter?: { category: string; _id: string };
+    search?: string;
+    sort?: string;
+    unselect?: Array<string>;
   }) {
     const sortBy: Record<string, 1 | -1> = Object.fromEntries(
       [query.sort].map((item) => [item, -1]),
@@ -143,7 +143,7 @@ export class ProductRepo {
       },
       {
         $project: {
-          ...getUnselectData(query.unselect),
+          ...getUnselectData(query.unselect ? query.unselect : ['__v']),
         },
       },
       {

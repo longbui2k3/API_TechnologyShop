@@ -10,6 +10,7 @@ import { HistoryModule } from './modules/history.module';
 import { StoreModule } from './modules/store.module';
 import { CommentModule } from './modules/comment.module';
 import { OrderModule } from './modules/order.module';
+import { VoucherModule } from './modules/voucher.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { OrderModule } from './modules/order.module';
     HistoryModule,
     StoreModule,
     CommentModule,
-    OrderModule
+    OrderModule,
+    VoucherModule,
   ],
 })
 export class AppModule implements NestModule {

@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
-import ProductFactory, { ProductService } from 'src/services/product.service';
+import ProductFactory from 'src/services/product.service';
 
 @Controller('/api/v1/product')
 export class ProductController {
@@ -80,7 +80,7 @@ export class ProductController {
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|webp)$/,
         })
-        .addMaxSizeValidator({ maxSize: 50000 })
+        .addMaxSizeValidator({ maxSize: 200000 })
         .build({
           fileIsRequired: false,
         }),
@@ -111,10 +111,12 @@ export class ProductController {
     @Query('search') search: string,
     @Query('category') category: string,
     @Query('sort') sort: string,
+    @Query('_id') _id: string,
   ) {
     return await this.productFactory.getAllProducts({
       filter: {
         category,
+        _id,
       },
       search,
       sort,

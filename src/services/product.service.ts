@@ -96,7 +96,7 @@ class ProductFactory {
   }
 
   async getAllProducts(query: {
-    filter: { category: string };
+    filter: { category: string; _id: string };
     search: string;
     sort: string;
   }) {
@@ -196,7 +196,7 @@ export class ProductService {
     };
   }
   async getAllProducts(query: {
-    filter: { category: string };
+    filter: { category: string; _id: string };
     search: string;
     sort: string;
   }) {
