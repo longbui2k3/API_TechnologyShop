@@ -45,7 +45,7 @@ export class UserController {
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|webp)$/,
         })
-        .addMaxSizeValidator({ maxSize: 50000 })
+        .addMaxSizeValidator({ maxSize: 200000 })
         .build({
           fileIsRequired: false,
         }),
