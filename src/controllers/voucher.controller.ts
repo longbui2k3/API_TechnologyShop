@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -35,18 +36,44 @@ export class VoucherController {
     return await this.voucherService.createVoucher(body);
   }
 
+  @Patch('/:id')
+  @HttpCode(200)
+  @UseGuards(AuthenticationGuard)
+  async updateVoucher(
+    @Body()
+    body: {
+      name: string;
+      value: number;
+      type: string;
+      code: string;
+      minimumPayment: number;
+      startsAt: Date;
+      expiresAt: Date;
+      description: string;
+      left: number;
+      applies_to: { category: string; _id: string };
+    },
+    @Param('id') id: string,
+  ) {
+    return await this.voucherService.updateVoucher(id, body);
+  }
+
   @Get('/')
   @HttpCode(200)
   async getAllVouchers(@Query('code') code: string) {
     return await this.voucherService.getAllVouchers(code);
   }
 
-  @Get('/:id/checkIsValid')
+  @Post('/:id/checkIsValid')
   @HttpCode(200)
   async checkVoucherValid(
     @Param('id') id: string,
-    @Query('payment') payment: number,
+    @Body() body: { payment: number; products: Array<string> },
   ) {
-    return await this.voucherService.checkVoucherValid(id, payment);
+    return await this.voucherService.checkVoucherValid(
+      id,
+      body.payment,
+      body.products,
+    );
   }
 }

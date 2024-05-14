@@ -10,6 +10,8 @@ import { ProductRepo } from 'src/models/repo/product.repo';
 import { ProductSchema } from 'src/models/product.model';
 import { Cart, CartSchema } from 'src/models/cart.model';
 import { CartRepo } from 'src/models/repo/cart.repo';
+import { VoucherSchema } from 'src/models/voucher.model';
+import { VoucherRepo } from 'src/models/repo/voucher.repo';
 
 @Global()
 @Module({
@@ -18,9 +20,17 @@ import { CartRepo } from 'src/models/repo/cart.repo';
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema }]),
     MongooseModule.forFeature([{ name: 'Cart', schema: CartSchema }]),
+    MongooseModule.forFeature([{ name: 'Voucher', schema: VoucherSchema }]),
   ],
   controllers: [OrderController],
-  providers: [OrderService, OrderRepo, UserRepo, ProductRepo, CartRepo],
+  providers: [
+    OrderService,
+    OrderRepo,
+    UserRepo,
+    ProductRepo,
+    CartRepo,
+    VoucherRepo,
+  ],
   exports: [OrderService],
 })
 export class OrderModule {

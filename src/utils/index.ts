@@ -25,3 +25,13 @@ export const removeUndefinedInObject = (obj: Object) => {
   return obj;
 };
 export const convertToObjectId = (id: string) => new Types.ObjectId(id);
+export const changePriceFromStringToNumber = (price: string) => {
+  const [number, _] = price.split('₫');
+  let res = '';
+  for (const i of number) {
+    if (i !== '.' && typeof parseInt(i) === 'number') {
+      res += i;
+    }
+  }
+  return parseInt(res);
+};
