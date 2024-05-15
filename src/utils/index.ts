@@ -43,3 +43,17 @@ export const changePriceFromStringToNumber = (price: string) => {
   }
   return parseInt(res);
 };
+
+export const flattenObject = (obj: Object, parent = '', res = {}) => {
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const propName = parent ? `${parent}.${key}` : key;
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        flattenObject(obj[key], propName, res);
+      } else {
+        res[propName] = obj[key];
+      }
+    }
+  }
+  return res;
+};

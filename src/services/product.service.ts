@@ -6,6 +6,7 @@ import { CategoryRepo } from 'src/models/repo/category.repo';
 import { ProductRepo } from 'src/models/repo/product.repo';
 import { LaptopRepo } from 'src/models/repo/products/laptop.repo';
 import { SmartphoneRepo } from 'src/models/repo/products/smartphone.repo';
+import { flattenObject, removeKeyInObject } from 'src/utils';
 @Injectable()
 class ProductFactory {
   constructor(
@@ -105,13 +106,16 @@ class ProductFactory {
   ) {
     const productClass = ProductFactory.productRegistry[type];
     if (!productClass) {
-
+      return await new ProductService(
+        this.productRepo,
+        this.categoryRepo,
+      ).getAllProducts(query);
     }
-    return await new productClass()
-      // return await new ProductService(
-      //   this.productRepo,
-      //   this.categoryRepo,
-      // ).getAllProducts(query);
+    return await new productClass(
+      this.productRegistryRepo[type],
+      this.productRepo,
+      this.categoryRepo,
+    ).getAllProducts(query);
   }
 }
 
@@ -278,6 +282,33 @@ class LaptopService extends ProductService {
     );
     return await super.modifyProduct(id, body, files);
   }
+
+  async getAllProducts(query: { filter: any; search: string; sort: string }) {
+    const laptopDescription = [
+      'cpu',
+      'ram',
+      'hard_drive',
+      'screen',
+      'graphics_card',
+      'port',
+      'operating_system',
+      'design',
+      'size',
+      'released_date',
+    ];
+    query.filter.description = removeKeyInObject(query.filter, [
+      'category',
+      '_id',
+      'type',
+    ]);
+
+    if (Object.keys(query.filter.description).length === 0)
+      query.filter.description = undefined;
+    query.filter = flattenObject(
+      removeKeyInObject(query.filter, laptopDescription),
+    );
+    return super.getAllProducts(query);
+  }
 }
 
 @Injectable()
@@ -335,6 +366,31 @@ class SmartphoneService extends ProductService {
       body.description,
     );
     return await super.modifyProduct(id, body, files);
+  }
+  async getAllProducts(query: { filter: any; search: string; sort: string }) {
+    const smartphoneDescription = [
+      'screen',
+      'operating_system',
+      'front_camera',
+      'rear_camera',
+      'chip',
+      'ram',
+      'storage',
+      'sim',
+      'battery',
+      'brand',
+    ];
+    query.filter.description = removeKeyInObject(query.filter, [
+      'category',
+      '_id',
+      'type',
+    ]);
+    if (Object.keys(query.filter.description).length === 0)
+      query.filter.description = undefined;
+    query.filter = flattenObject(
+      removeKeyInObject(query.filter, smartphoneDescription),
+    );
+    return super.getAllProducts(query);
   }
 }
 
