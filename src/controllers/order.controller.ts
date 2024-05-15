@@ -33,6 +33,7 @@ export class OrderController {
       voucher: string;
       products: Array<{ product: string; quantity: number }>;
       phone: string;
+      onlineBanking: string;
     },
   ) {
     return await this.orderService.createOrder({

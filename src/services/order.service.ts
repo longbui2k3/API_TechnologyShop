@@ -34,6 +34,7 @@ export class OrderService {
     voucher: string;
     products: Array<{ product: string; quantity: number }>;
     phone: string;
+    onlineBanking: string;
   }) {
     return await transaction(this.connection, async (session) => {
       // Kiem tra ng dung ton tai

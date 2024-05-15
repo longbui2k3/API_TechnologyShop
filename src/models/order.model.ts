@@ -75,8 +75,11 @@ export class Order {
   @Prop({ type: Date })
   deliveredDate: Date;
 
-  // @Prop({ type: String })
-  // onlineBanking: string;
+  @Prop({ type: String })
+  onlineBanking: string;
+
+  @Prop({ type: String, default: 'unpaid' })
+  paymentStatus: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

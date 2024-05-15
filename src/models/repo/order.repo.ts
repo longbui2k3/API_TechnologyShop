@@ -20,6 +20,7 @@ export class OrderRepo {
       voucher: string;
       products: Array<{ product: string; quantity: number }>;
       phone: string;
+      onlineBanking: string;
     },
     session?: ClientSession,
   ) {
@@ -30,6 +31,9 @@ export class OrderRepo {
       status: 'pending',
       deliveredDate: Date.now(),
     });
+    if (order.onlineBanking) {
+      order.paymentStatus = 'paid';
+    }
     await order.save({ session });
     return order;
   }
