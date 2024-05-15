@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -39,5 +41,23 @@ export class OrderController {
       ...body,
       user: req.user.userId,
     });
+  }
+
+  @Get('/user')
+  @HttpCode(200)
+  @UseGuards(AuthenticationGuard)
+  async findAllOrdersForUser(@Req() req: RequestModel, @Query() query) {
+    return await this.orderService.findAllOrdersForUser({
+      user: req.user.userId,
+      sort: query.sort,
+      status: query.status,
+    });
+  }
+
+  @Get('/')
+  @HttpCode(200)
+  @UseGuards(AuthenticationGuard)
+  async findAllOrders(@Query() query) {
+    return await this.orderService.findAllOrders(query);
   }
 }

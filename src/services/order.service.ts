@@ -179,4 +179,30 @@ export class OrderService {
       };
     });
   }
+
+  async findAllOrdersForUser(query: {
+    user: string;
+    sort: string;
+    status: string;
+  }) {
+    const checkUserExists = await this.userRepo.checkUserExists(query.user);
+
+    return {
+      message: 'Find all orders for user successfully!',
+      status: 200,
+      metadata: {
+        orders: await this.orderRepo.findAllOrdersForUser(query),
+      },
+    };
+  }
+
+  async findAllOrders(query: { sort: string; status: string }) {
+    return {
+      message: 'Find all orders successfully!',
+      status: 200,
+      metadata: {
+        orders: await this.orderRepo.findAllOrders(query),
+      },
+    };
+  }
 }
