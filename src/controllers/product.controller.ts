@@ -15,6 +15,8 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
 import ProductFactory from 'src/services/product.service';
+import _ from 'lodash';
+import { removeKeyInObject } from 'src/utils';
 
 @Controller('/api/v1/product')
 export class ProductController {
@@ -107,19 +109,11 @@ export class ProductController {
 
   @Get('')
   @HttpCode(200)
-  async getAllProducts(
-    @Query('search') search: string,
-    @Query('category') category: string,
-    @Query('sort') sort: string,
-    @Query('_id') _id: string,
-  ) {
-    return await this.productFactory.getAllProducts({
-      filter: {
-        category,
-        _id,
-      },
-      search,
-      sort,
+  async getAllProducts(@Query() query) {
+    return await this.productFactory.getAllProducts(query.type, {
+      filter: removeKeyInObject(query, ['search', 'sort']),
+      search: query.search,
+      sort: query.sort,
     });
   }
 }

@@ -126,7 +126,7 @@ export class ProductRepo {
   }
 
   async getAllProducts(query: {
-    filter?: { category: string; _id: string };
+    filter?;
     search?: string;
     sort?: string;
     unselect?: Array<string>;

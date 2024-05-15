@@ -78,6 +78,16 @@ export class VoucherService {
     };
   }
 
+  async getVoucher(id: string) {
+    return {
+      message: 'Get voucher successfully!',
+      status: 200,
+      metadata: {
+        voucher: await this.voucherRepo.getVoucher(id),
+      },
+    };
+  }
+
   async checkVoucherValid(
     id: string,
     payment: number,
@@ -87,7 +97,11 @@ export class VoucherService {
       message: 'Check voucher successfully!',
       status: 200,
       metadata: {
-        isValid: await this.voucherRepo.checkVoucherValid(id, payment, products),
+        isValid: await this.voucherRepo.checkVoucherValid(
+          id,
+          payment,
+          products,
+        ),
       },
     };
   }

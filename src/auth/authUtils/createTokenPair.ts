@@ -1,6 +1,5 @@
-import JWT from "jsonwebtoken";
-import { Types } from "mongoose";
-
+import JWT from 'jsonwebtoken';
+import { Types } from 'mongoose';
 
 export const createTokenPair = async (
   payload: { userId: Types.ObjectId; email: string },
@@ -8,11 +7,11 @@ export const createTokenPair = async (
   privateKey: string,
 ) => {
   try {
-    const accessToken = await JWT.sign(payload, publicKey, {
-      expiresIn: '2 days',
+    const accessToken = JWT.sign(payload, publicKey, {
+      expiresIn: '2d',
     });
-    const refreshToken = await JWT.sign(payload, privateKey, {
-      expiresIn: '7 days',
+    const refreshToken = JWT.sign(payload, privateKey, {
+      expiresIn: '7d',
     });
 
     return { accessToken, refreshToken };

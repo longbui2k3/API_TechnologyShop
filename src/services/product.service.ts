@@ -95,15 +95,23 @@ class ProductFactory {
     ).getTop10NewestProducts();
   }
 
-  async getAllProducts(query: {
-    filter: { category: string; _id: string };
-    search: string;
-    sort: string;
-  }) {
-    return await new ProductService(
-      this.productRepo,
-      this.categoryRepo,
-    ).getAllProducts(query);
+  async getAllProducts(
+    type: string,
+    query: {
+      filter: Object;
+      search: string;
+      sort: string;
+    },
+  ) {
+    const productClass = ProductFactory.productRegistry[type];
+    if (!productClass) {
+
+    }
+    return await new productClass()
+      // return await new ProductService(
+      //   this.productRepo,
+      //   this.categoryRepo,
+      // ).getAllProducts(query);
   }
 }
 
@@ -195,11 +203,7 @@ export class ProductService {
       },
     };
   }
-  async getAllProducts(query: {
-    filter: { category: string; _id: string };
-    search: string;
-    sort: string;
-  }) {
+  async getAllProducts(query: { filter: any; search: string; sort: string }) {
     if (query.filter.category !== undefined) {
       const checkCategoryExists = await this.categoryRepo.checkCategoryExists(
         query.filter.category,

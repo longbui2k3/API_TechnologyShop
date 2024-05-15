@@ -24,6 +24,14 @@ export const removeUndefinedInObject = (obj: Object) => {
   });
   return obj;
 };
+export const removeKeyInObject = (obj: Object, keys: Array<string>) => {
+  return Object.keys(obj)
+    .filter((keyObj) => !keys.includes(keyObj))
+    .reduce((newObj: Object, key: string) => {
+      newObj[key] = obj[key];
+      return newObj;
+    }, {});
+};
 export const convertToObjectId = (id: string) => new Types.ObjectId(id);
 export const changePriceFromStringToNumber = (price: string) => {
   const [number, _] = price.split('₫');

@@ -64,6 +64,12 @@ export class VoucherController {
     return await this.voucherService.getAllVouchers(code);
   }
 
+  @Get('/:id')
+  @HttpCode(200)
+  async getVoucher(@Param('id') id: string) {
+    return await this.voucherService.getVoucher(id);
+  }
+
   @Post('/:id/checkIsValid')
   @HttpCode(200)
   async checkVoucherValid(

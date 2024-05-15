@@ -39,6 +39,9 @@ export class VoucherRepo {
       }),
     );
   }
+  async getVoucher(id: string) {
+    return await this.voucherModel.findById(id);
+  }
   async checkVoucherValid(
     id: string,
     payment: number,
