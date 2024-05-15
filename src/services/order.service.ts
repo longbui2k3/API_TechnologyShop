@@ -29,12 +29,11 @@ export class OrderService {
       total: number;
     };
     shipping_address: string;
-    payment: string;
+    payment: { method: string };
     coin: number;
     voucher: string;
     products: Array<{ product: string; quantity: number }>;
     phone: string;
-    onlineBanking: string;
   }) {
     return await transaction(this.connection, async (session) => {
       // Kiem tra ng dung ton tai

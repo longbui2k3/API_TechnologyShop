@@ -15,12 +15,11 @@ export class OrderRepo {
         total: number;
       };
       shipping_address: string;
-      payment: string;
+      payment: { method: string };
       coin: number;
       voucher: string;
       products: Array<{ product: string; quantity: number }>;
       phone: string;
-      onlineBanking: string;
     },
     session?: ClientSession,
   ) {
@@ -31,7 +30,7 @@ export class OrderRepo {
       status: 'pending',
       deliveredDate: Date.now(),
     });
-    if (order.onlineBanking) {
+    if (order.payment.method === 'onlineBanking') {
       order.paymentStatus = 'paid';
     }
     await order.save({ session });

@@ -45,6 +45,9 @@ export class Laptop {
 
   @Prop({ type: String })
   released_date: string;
+
+  @Prop({ type: String })
+  brand: string;
 }
 
 export const LaptopSchema = SchemaFactory.createForClass(Laptop);

@@ -28,12 +28,11 @@ export class OrderController {
         total: number;
       };
       shipping_address: string;
-      payment: string;
+      payment: { method: string };
       coin: number;
       voucher: string;
       products: Array<{ product: string; quantity: number }>;
       phone: string;
-      onlineBanking: string;
     },
   ) {
     return await this.orderService.createOrder({

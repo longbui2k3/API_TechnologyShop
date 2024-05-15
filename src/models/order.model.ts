@@ -38,8 +38,12 @@ export class Order {
   @Prop({ type: String, required: true })
   shipping_address: string;
 
-  @Prop({ type: Object, default: {} })
-  payment: Object;
+  @Prop({
+    type: {
+      method: { type: String, enum: ['cod', 'onlineBanking'], default: 'cod' },
+    },
+  })
+  payment: { method: string };
 
   @Prop({ type: String, default: '#0000000000' })
   trackingNumber: string;
@@ -74,9 +78,6 @@ export class Order {
 
   @Prop({ type: Date })
   deliveredDate: Date;
-
-  @Prop({ type: String })
-  onlineBanking: string;
 
   @Prop({ type: String, default: 'unpaid' })
   paymentStatus: string;
