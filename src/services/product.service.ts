@@ -7,6 +7,14 @@ import { ProductRepo } from 'src/models/repo/product.repo';
 import { LaptopRepo } from 'src/models/repo/products/laptop.repo';
 import { SmartphoneRepo } from 'src/models/repo/products/smartphone.repo';
 import { flattenObject, removeKeyInObject } from 'src/utils';
+import {
+  laptopBrands,
+  laptopCPUs,
+  laptopHardDrives,
+  laptopRams,
+  laptopScreenResolutions,
+  laptopScreenSizes,
+} from 'src/utils/filters/laptopFilter';
 @Injectable()
 class ProductFactory {
   constructor(
@@ -285,8 +293,62 @@ class LaptopService extends ProductService {
 
   async getAllProducts(query: { filter: any; search: string; sort: string }) {
     // check input cac filter
-    // check brands
-    
+    const {
+      brand,
+      fromPrice,
+      toPrice,
+      ram,
+      resolution,
+      screen_size,
+      cpu,
+      hard_drive,
+    } = query.filter;
+    // check brand
+    if (brand && !laptopBrands.includes(brand)) {
+      throw new BadRequestException('Brand is invalid!');
+    }
+    // check price
+    if (fromPrice && !toPrice) {
+      throw new BadRequestException(
+        'Query toPrice is required when having fromPrice!',
+      );
+    }
+    if (!fromPrice && toPrice) {
+      throw new BadRequestException(
+        'Query fromPrice is required when having toPrice!',
+      );
+    }
+
+    if (fromPrice > toPrice) {
+      throw new BadRequestException(
+        'Query toPrice must be greater than query fromPrice!',
+      );
+    }
+
+    // check ram
+    if (ram && !laptopRams.includes(ram)) {
+      throw new BadRequestException('Ram is invalid!');
+    }
+
+    // check screen size
+    if (screen_size && !laptopScreenSizes.includes(screen_size)) {
+      throw new BadRequestException('Screen_size is invalid!');
+    }
+    // check resolution
+    if (resolution && !laptopScreenResolutions.includes(resolution)) {
+      throw new BadRequestException('Resolution is invalid!');
+    }
+
+    // check cpu
+    if (cpu && !laptopCPUs.includes(cpu)) {
+      throw new BadRequestException('CPU is invalid!');
+    }
+
+    // check hard drive
+    if (hard_drive && !laptopHardDrives.includes(hard_drive)) {
+      throw new BadRequestException('Hard drive is invalid!');
+    }
+
     const laptopDescription = [
       'cpu',
       'ram',
@@ -306,6 +368,8 @@ class LaptopService extends ProductService {
       'type',
       'fromPrice',
       'toPrice',
+      'screen_size',
+      'resolution',
     ]);
 
     if (Object.keys(query.filter.description).length === 0)
@@ -313,11 +377,21 @@ class LaptopService extends ProductService {
 
     // Condition for description
     query.filter.description.ram = query.filter.description.ram
-      ? RegExp(`^${query.filter.description.ram}`)
+      ? RegExp(`^${ram}`)
       : undefined;
 
+    query.filter.description.screen = RegExp(
+      `${screen_size ? `^${screen_size}.*` : ''}${resolution ? resolution : ''}`,
+    );
+    query.filter.description.cpu = RegExp(`^${cpu ? cpu : ''}`);
+    query.filter.description.hard_drive = RegExp(`^${hard_drive}`);
+    // Flatten object
     query.filter = flattenObject(
-      removeKeyInObject(query.filter, laptopDescription),
+      removeKeyInObject(query.filter, [
+        ...laptopDescription,
+        'screen_size',
+        'resolution',
+      ]),
     );
     console.log(query);
     return super.getAllProducts(query);
