@@ -48,7 +48,11 @@ export const flattenObject = (obj: Object, parent = '', res = {}) => {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
       const propName = parent ? `${parent}.${key}` : key;
-      if (typeof obj[key] === 'object' && obj[key] !== null) {
+      if (
+        typeof obj[key] === 'object' &&
+        obj[key] !== null &&
+        !(obj[key] instanceof RegExp)
+      ) {
         flattenObject(obj[key], propName, res);
       } else {
         res[propName] = obj[key];

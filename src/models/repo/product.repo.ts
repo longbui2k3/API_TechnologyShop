@@ -4,8 +4,10 @@ import { Product, ProductSchema } from '../product.model';
 import { UploadFiles } from 'src/utils/uploadFiles';
 import { BadRequestException } from '@nestjs/common';
 import {
+  changePriceFromStringToNumber,
   convertToObjectId,
   getUnselectData,
+  removeKeyInObject,
   removeUndefinedInObject,
 } from 'src/utils';
 
@@ -139,7 +141,13 @@ export class ProductRepo {
       : undefined;
     const agg: PipelineStage[] = [
       {
-        $match: removeUndefinedInObject({ ...query.filter, category }),
+        $match: removeKeyInObject(
+          removeUndefinedInObject({
+            ...query.filter,
+            category,
+          }),
+          ['fromPrice', 'toPrice'],
+        ),
       },
       {
         $project: {
@@ -163,7 +171,16 @@ export class ProductRepo {
         },
       });
     }
-    const products = await this.productModel.aggregate(agg);
+    let products = await this.productModel.aggregate(agg);
+    if (query.filter.fromPrice && query.filter.toPrice) {
+      products = products.filter((product) => {
+        const sale_price = changePriceFromStringToNumber(product.sale_price);
+        return (
+          sale_price >= parseInt(query.filter.fromPrice) &&
+          sale_price <= parseInt(query.filter.toPrice)
+        );
+      });
+    }
     return products;
   }
 

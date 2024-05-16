@@ -284,6 +284,9 @@ class LaptopService extends ProductService {
   }
 
   async getAllProducts(query: { filter: any; search: string; sort: string }) {
+    // check input cac filter
+    // check brands
+    
     const laptopDescription = [
       'cpu',
       'ram',
@@ -295,18 +298,28 @@ class LaptopService extends ProductService {
       'design',
       'size',
       'released_date',
+      'brand',
     ];
     query.filter.description = removeKeyInObject(query.filter, [
       'category',
       '_id',
       'type',
+      'fromPrice',
+      'toPrice',
     ]);
 
     if (Object.keys(query.filter.description).length === 0)
       query.filter.description = undefined;
+
+    // Condition for description
+    query.filter.description.ram = query.filter.description.ram
+      ? RegExp(`^${query.filter.description.ram}`)
+      : undefined;
+
     query.filter = flattenObject(
       removeKeyInObject(query.filter, laptopDescription),
     );
+    console.log(query);
     return super.getAllProducts(query);
   }
 }
