@@ -15,6 +15,13 @@ import {
   laptopScreenResolutions,
   laptopScreenSizes,
 } from 'src/utils/filters/laptopFilter';
+import {
+  smartphoneBattery,
+  smartphoneBrands,
+  smartphoneRams,
+  smartphoneStorages,
+  smartphoneTypes,
+} from 'src/utils/filters/smartphoneFilter';
 @Injectable()
 class ProductFactory {
   constructor(
@@ -393,7 +400,6 @@ class LaptopService extends ProductService {
         'resolution',
       ]),
     );
-    console.log(query);
     return super.getAllProducts(query);
   }
 }
@@ -455,6 +461,58 @@ class SmartphoneService extends ProductService {
     return await super.modifyProduct(id, body, files);
   }
   async getAllProducts(query: { filter: any; search: string; sort: string }) {
+    const {
+      brand,
+      fromPrice,
+      toPrice,
+      operating_system,
+      ram,
+      storage,
+      battery,
+    } = query.filter;
+
+    // check brand
+    if (brand && !smartphoneBrands.includes(brand)) {
+      throw new BadRequestException('Brand is invalid!');
+    }
+
+    // check price
+    if (fromPrice && !toPrice) {
+      throw new BadRequestException(
+        'Query toPrice is required when having fromPrice!',
+      );
+    }
+    if (!fromPrice && toPrice) {
+      throw new BadRequestException(
+        'Query fromPrice is required when having toPrice!',
+      );
+    }
+
+    if (fromPrice > toPrice) {
+      throw new BadRequestException(
+        'Query toPrice must be greater than query fromPrice!',
+      );
+    }
+
+    // check ram
+    if (ram && !smartphoneRams.includes(ram)) {
+      throw new BadRequestException('Ram is invalid!');
+    }
+
+    // check storage
+    if (storage && !smartphoneStorages.includes(storage)) {
+      throw new BadRequestException('Storage is invalid!');
+    }
+
+    // check operating system
+    if (operating_system && !smartphoneTypes.includes(operating_system)) {
+      throw new BadRequestException('Operating system is invalid!');
+    }
+
+    // check battery
+    if (battery && !smartphoneBattery.includes(battery)) {
+      throw new BadRequestException('Battery is invalid!');
+    }
     const smartphoneDescription = [
       'screen',
       'operating_system',
@@ -464,19 +522,29 @@ class SmartphoneService extends ProductService {
       'ram',
       'storage',
       'sim',
-      'battery',
+      // 'battery',
       'brand',
     ];
     query.filter.description = removeKeyInObject(query.filter, [
       'category',
       '_id',
       'type',
+      'fromPrice',
+      'toPrice',
+      'battery',
     ]);
     if (Object.keys(query.filter.description).length === 0)
       query.filter.description = undefined;
+
+    // Condition for description
+    query.filter.description.operating_system = operating_system
+      ? RegExp(`^${operating_system}`)
+      : undefined;
+
     query.filter = flattenObject(
       removeKeyInObject(query.filter, smartphoneDescription),
     );
+    console.log(query);
     return super.getAllProducts(query);
   }
 }

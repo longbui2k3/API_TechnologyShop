@@ -146,7 +146,7 @@ export class ProductRepo {
             ...query.filter,
             category,
           }),
-          ['fromPrice', 'toPrice'],
+          ['fromPrice', 'toPrice', 'battery'],
         ),
       },
       {
@@ -181,6 +181,17 @@ export class ProductRepo {
         );
       });
     }
+    if (query.filter.type === 'smartphone' && query.filter.battery) {
+      products = products.filter((product) => {
+        const battery = parseInt(product.description.battery.split(' ')[2]);
+        if (query.filter.battery === 'fast') {
+          return battery >= 20 && battery < 60;
+        } else if (query.filter.battery === 'superfast') {
+          return battery >= 60;
+        }
+      });
+    }
+
     return products;
   }
 

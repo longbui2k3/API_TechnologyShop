@@ -16,3 +16,5 @@ export const smartphoneStorages = [
   '512 GB',
   '1 TB',
 ];
+
+export const smartphoneBattery = ['fast', 'superfast'];
