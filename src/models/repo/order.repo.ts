@@ -62,7 +62,7 @@ export class OrderRepo {
       .populate({ path: 'user', select: { _id: 1, name: 1, avatar: 1 } })
       .populate({
         path: 'products.product',
-        select: { name: 1, rating: 1, sale_price: 1 },
+        select: { name: 1, rating: 1, sale_price: 1, images: 1 },
       })
       .lean();
     orders = orders.map((order) => {
@@ -85,7 +85,7 @@ export class OrderRepo {
       .populate({ path: 'user', select: { _id: 1, name: 1, avatar: 1 } })
       .populate({
         path: 'products.product',
-        select: { name: 1, rating: 1, sale_price: 1 },
+        select: { name: 1, rating: 1, sale_price: 1, images: 1 },
       })
       .lean();
 
