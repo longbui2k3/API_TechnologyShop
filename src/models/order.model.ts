@@ -64,7 +64,7 @@ export class Order {
     required: true,
     default: [],
   })
-  products: Array<{ product: Product; quantity: Number }>;
+  products: Array<{ product: Product; quantity: number }>;
 
   @Prop({
     type: String,
@@ -81,6 +81,9 @@ export class Order {
 
   @Prop({ type: String, default: 'unpaid' })
   paymentStatus: string;
+
+  @Prop({ type: Date })
+  createdAt: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

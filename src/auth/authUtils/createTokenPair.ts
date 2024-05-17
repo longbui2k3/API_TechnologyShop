@@ -7,11 +7,11 @@ export const createTokenPair = async (
   privateKey: string,
 ) => {
   try {
-    const accessToken = JWT.sign(payload, publicKey, {
-      expiresIn: '2d',
+    const accessToken = await JWT.sign(payload, publicKey, {
+      expiresIn: '2 days',
     });
-    const refreshToken = JWT.sign(payload, privateKey, {
-      expiresIn: '7d',
+    const refreshToken = await JWT.sign(payload, privateKey, {
+      expiresIn: '7 days',
     });
 
     return { accessToken, refreshToken };

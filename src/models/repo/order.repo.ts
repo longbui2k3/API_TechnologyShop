@@ -2,9 +2,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { Order } from '../order.model';
 import { removeUndefinedInObject } from 'src/utils';
+import { BadRequestException } from '@nestjs/common';
 
 export class OrderRepo {
   constructor(@InjectModel('Order') private orderModel: Model<Order>) {}
+
+  async checkOrderExists(id: string) {
+    const order = await this.orderModel.findById(id);
+    if (!order) {
+      throw new BadRequestException(`Order with id ${id} is not found!`);
+    }
+    return order;
+  }
 
   async createOrder(
     body: {
@@ -29,7 +38,7 @@ export class OrderRepo {
       ...body,
       trackingNumber: `#${numberOfOrders + 1}`,
       status: 'pending',
-      deliveredDate: Date.now(),
+      createdAt: Date.now(),
     });
     if (order.payment.method === 'onlineBanking') {
       order.paymentStatus = 'paid';
@@ -87,5 +96,14 @@ export class OrderRepo {
       return order;
     });
     return orders;
+  }
+
+  async updateStatusOrders(order: string, status: string) {
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(
+      order,
+      { status },
+      { new: true },
+    );
+    return updatedOrder;
   }
 }

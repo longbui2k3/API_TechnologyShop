@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { transaction } from 'src/helpers/transaction';
@@ -202,6 +206,73 @@ export class OrderService {
       status: 200,
       metadata: {
         orders: await this.orderRepo.findAllOrders(query),
+      },
+    };
+  }
+
+  async updateStatusOrders(order: string, status: string, user: string) {
+    const checkOrderExists = await this.orderRepo.checkOrderExists(order);
+
+    const checkUserExists = await this.userRepo.checkUserExists(user);
+
+    const statuses = ['pending', 'confirmed', 'delivered', 'cancelled'];
+    const index = statuses.indexOf(status);
+    if (index < 0) {
+      throw new BadRequestException('Status is not valid!');
+    }
+
+    if (
+      statuses.indexOf(checkOrderExists.status) + 1 !== index &&
+      index !== statuses.length - 1
+    ) {
+      throw new BadRequestException(
+        `Update status failed! Order must be in ${statuses[index - 1]} status`,
+      );
+    }
+
+    switch (checkUserExists.role) {
+      case 'user':
+        if (status !== 'cancelled') {
+          throw new UnauthorizedException(
+            `User doesn't have permission to change order status to ${status}`,
+          );
+        }
+        break;
+      case 'admin':
+        if (status !== 'confirmed' && status !== 'delivered') {
+          throw new UnauthorizedException(
+            `Admin doesn't have permission to change order status to ${status}`,
+          );
+        }
+    }
+
+    if (status === 'cancelled') {
+      if (
+        Date.now() - new Date(checkOrderExists.createdAt).getTime() >
+        1000 * 60 * 30
+      ) {
+        throw new BadRequestException(
+          'Order can not be cancelled after 30 minutes',
+        );
+      }
+    }
+
+    if (status === 'delivered') {
+      await Promise.all(
+        checkOrderExists.products.map(async (product) => {
+          await this.productRepo.updateSoldOfProduct({
+            id: product.product._id,
+            sold: product.quantity,
+          });
+        }),
+      );
+    }
+
+    return {
+      message: 'Update status of order successfully!',
+      status: 200,
+      metadata: {
+        order: await this.orderRepo.updateStatusOrders(order, status),
       },
     };
   }

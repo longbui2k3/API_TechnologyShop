@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -59,5 +61,20 @@ export class OrderController {
   @UseGuards(AuthenticationGuard)
   async findAllOrders(@Query() query) {
     return await this.orderService.findAllOrders(query);
+  }
+
+  @Patch('/:id/status')
+  @HttpCode(200)
+  @UseGuards(AuthenticationGuard)
+  async updateStatusOrders(
+    @Param('id') id: string,
+    @Body() body: { status: string },
+    @Req() req: RequestModel,
+  ) {
+    return await this.orderService.updateStatusOrders(
+      id,
+      body.status,
+      req.user.userId,
+    );
   }
 }

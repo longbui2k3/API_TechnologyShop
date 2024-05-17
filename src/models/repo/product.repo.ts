@@ -216,4 +216,15 @@ export class ProductRepo {
       { new: true, session },
     );
   }
+
+  async updateSoldOfProduct(body: { id: string; sold: number }) {
+    return await this.productModel.findByIdAndUpdate(
+      body.id,
+      {
+        $inc: { sold: body.sold },
+        deliveredDate: Date.now(),
+      },
+      { new: true },
+    );
+  }
 }
