@@ -2,10 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { Laptop } from 'src/models/products/laptop.model';
 import { Smartphone } from 'src/models/products/smartphone.model';
+import { Tablet } from 'src/models/products/tablet.model';
 import { CategoryRepo } from 'src/models/repo/category.repo';
 import { ProductRepo } from 'src/models/repo/product.repo';
 import { LaptopRepo } from 'src/models/repo/products/laptop.repo';
 import { SmartphoneRepo } from 'src/models/repo/products/smartphone.repo';
+import { TabletRepo } from 'src/models/repo/products/tablet.repo';
 import { flattenObject, removeKeyInObject } from 'src/utils';
 import {
   laptopBrands,
@@ -27,6 +29,7 @@ class ProductFactory {
   constructor(
     private laptopRepo: LaptopRepo,
     private smartphoneRepo: SmartphoneRepo,
+    private tabletRepo: TabletRepo,
     private productRepo: ProductRepo,
     private categoryRepo: CategoryRepo,
   ) {}
@@ -34,6 +37,7 @@ class ProductFactory {
   productRegistryRepo = {
     laptop: this.laptopRepo,
     smartphone: this.smartphoneRepo,
+    tablet: this.tabletRepo,
   };
   static registerProductType(type: string, classRef: any) {
     ProductFactory.productRegistry[type] = classRef;
@@ -549,6 +553,63 @@ class SmartphoneService extends ProductService {
   }
 }
 
+@Injectable()
+class TabletService extends ProductService {
+  constructor(
+    private tabletRepo: TabletRepo,
+    productRepo: ProductRepo,
+    categoryRepo: CategoryRepo,
+  ) {
+    super(productRepo, categoryRepo);
+  }
+
+  async createProduct(
+    body: {
+      name: string;
+      price: Number;
+      sale_price: Number;
+      information: string;
+      type: string;
+      description: Tablet;
+      category: string;
+      linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
+    },
+    files: Array<Express.Multer.File> | [],
+  ) {
+    const newTablet = await this.tabletRepo.createTablet(body.description);
+
+    return await super.addProduct({ ...body, _id: newTablet._id }, files);
+  }
+
+  async updateProduct(
+    id: string,
+    body: {
+      name: string;
+      price: Number;
+      sale_price: Number;
+      information: string;
+      description: Tablet;
+      category: string;
+      linkytb: string;
+      extraInfo: Array<string>;
+      variants: Array<{ label: string; variants: Array<string> }>;
+      left: Number;
+      images: Array<string>;
+    },
+    files: Array<Express.Multer.File> | [],
+  ) {
+    const updatedTablet = await this.tabletRepo.updateTablet(
+      id,
+      body.description,
+    );
+    return await super.modifyProduct(id, body, files);
+  }
+}
+
 ProductFactory.registerProductType('smartphone', SmartphoneService);
 ProductFactory.registerProductType('laptop', LaptopService);
+ProductFactory.registerProductType('tablet', TabletService);
 export default ProductFactory;
