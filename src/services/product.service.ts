@@ -638,7 +638,7 @@ class TabletService extends ProductService {
       );
     }
 
-    if (fromPrice > toPrice) {
+    if (parseInt(fromPrice) > parseInt(toPrice)) {
       throw new BadRequestException(
         'Query toPrice must be greater than query fromPrice!',
       );

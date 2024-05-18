@@ -61,3 +61,21 @@ export const flattenObject = (obj: Object, parent = '', res = {}) => {
   }
   return res;
 };
+
+export const isLeapYear = (year: number) => {
+  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+};
+
+export const daysOfMonth = (month: number, year: number) => {
+  const monthsHave31Days = [1, 3, 5, 7, 8, 10, 12];
+  const monthsHave30Days = [4, 6, 9, 11];
+  if (monthsHave31Days.includes(month)) {
+    return 31;
+  } else if (monthsHave30Days.includes(month)) {
+    return 30;
+  } else {
+    if (isLeapYear(year)) {
+      return 29;
+    } else 28;
+  }
+};

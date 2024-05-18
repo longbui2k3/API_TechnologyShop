@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { NextFunction, Request, Response } from 'express';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 
 const PORT: number | string = process.env.PORT || 8000;

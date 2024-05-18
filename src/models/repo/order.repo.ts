@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { Order } from '../order.model';
-import { removeUndefinedInObject } from 'src/utils';
+import { daysOfMonth, removeUndefinedInObject } from 'src/utils';
 import { BadRequestException } from '@nestjs/common';
 
 export class OrderRepo {
@@ -105,5 +105,135 @@ export class OrderRepo {
       { new: true },
     );
     return updatedOrder;
+  }
+
+  async getRevenue() {
+    const orders = await this.orderModel.aggregate([
+      {
+        $match: {
+          status: 'delivered',
+        },
+      },
+      {
+        $group: {
+          _id: '_id',
+          numberOfSuccessfulOrders: { $sum: 1 },
+          revenue: { $sum: '$checkout.total' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+    ]);
+    return orders[0];
+  }
+
+  async getRevenueByYear(year: number) {
+    const orders = await this.orderModel.aggregate([
+      {
+        $match: {
+          deliveredDate: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+          status: 'delivered',
+        },
+      },
+    ]);
+    const statistics = await this.orderModel.aggregate([
+      {
+        $match: {
+          deliveredDate: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+          status: 'delivered',
+        },
+      },
+      {
+        $group: {
+          _id: '_id',
+          numberOfSuccessfulOrders: { $sum: 1 },
+          revenue: { $sum: '$checkout.total' },
+        },
+      },
+      { $project: { _id: 0 } },
+    ]);
+
+    if (statistics.length === 0) {
+      statistics[0] = { numberOfSuccessfulOrders: 0, revenue: 0 };
+    }
+
+    const months = {};
+    for (let i = 1; i <= 12; i++) {
+      months[i] = { numberOfSuccessfulOrders: 0, revenue: 0 };
+    }
+    orders.forEach((order) => {
+      const month = order.deliveredDate.getMonth() + 1;
+      months[month].numberOfSuccessfulOrders += 1;
+      months[month].revenue += order.checkout.total;
+    });
+
+    statistics[0].months = months;
+    return statistics[0];
+  }
+
+  async getRevenueByMonth(month: number, year: number) {
+    const orders = await this.orderModel.aggregate([
+      {
+        $match: {
+          deliveredDate: {
+            $gte: new Date(`${year}-${month}-01`),
+            $lte: new Date(`${year}-${month}-${daysOfMonth(month, year)}`),
+          },
+          status: 'delivered',
+        },
+      },
+    ]);
+
+    const statistics = await this.orderModel.aggregate([
+      {
+        $match: {
+          deliveredDate: {
+            $gte: new Date(`${year}-${month}-01`),
+            $lte: new Date(`${year}-${month}-${daysOfMonth(month, year)}`),
+          },
+          status: 'delivered',
+        },
+      },
+      {
+        $group: {
+          _id: '_id',
+          numberOfSuccessfulOrders: { $sum: 1 },
+          revenue: { $sum: '$checkout.total' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+    ]);
+
+    if (statistics.length === 0) {
+      statistics[0] = { numberOfSuccessfulOrders: 0, revenue: 0 };
+    }
+
+    const days = {};
+    for (let i = 1; i <= daysOfMonth(month, year); i++) {
+      days[i] = { numberOfSuccessfulOrders: 0, revenue: 0 };
+    }
+
+    orders.forEach((order) => {
+      const day = order.deliveredDate.getDate();
+      days[day].numberOfSuccessfulOrders += 1;
+      days[day].revenue += order.checkout.total;
+    });
+
+    statistics[0].days = days;
+
+    return statistics[0];
   }
 }

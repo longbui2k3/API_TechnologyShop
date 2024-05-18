@@ -11,6 +11,7 @@ import { StoreModule } from './modules/store.module';
 import { CommentModule } from './modules/comment.module';
 import { OrderModule } from './modules/order.module';
 import { VoucherModule } from './modules/voucher.module';
+import { StatisticModule } from './modules/statistic.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { VoucherModule } from './modules/voucher.module';
     CommentModule,
     OrderModule,
     VoucherModule,
+    StatisticModule
   ],
 })
 export class AppModule implements NestModule {
