@@ -2,7 +2,7 @@ import JWT from 'jsonwebtoken';
 import { Types } from 'mongoose';
 
 export const createTokenPair = async (
-  payload: { userId: Types.ObjectId; email: string },
+  payload: { userId: Types.ObjectId; email: string; role: string },
   publicKey: string,
   privateKey: string,
 ) => {

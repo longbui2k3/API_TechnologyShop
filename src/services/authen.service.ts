@@ -128,7 +128,7 @@ export class AuthenService {
         }
 
         const tokens = await createTokenPair(
-          { userId: user._id, email },
+          { userId: user._id, email, role: user.role },
           publicKey,
           privateKey,
         );
@@ -177,7 +177,7 @@ export class AuthenService {
     const publicKey = crypto.randomBytes(64).toString('hex');
 
     const tokens = await createTokenPair(
-      { userId: user._id, email: body.email },
+      { userId: user._id, email: body.email, role: user.role },
       publicKey,
       privateKey,
     );
@@ -282,7 +282,7 @@ export class AuthenService {
     }
 
     const tokens = await createTokenPair(
-      { userId: user._id, email: user.email },
+      { userId: user._id, email: user.email, role: user.role },
       publicKey,
       privateKey,
     );
