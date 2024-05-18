@@ -146,7 +146,13 @@ export class ProductRepo {
             ...query.filter,
             category,
           }),
-          ['fromPrice', 'toPrice', 'battery'],
+          [
+            'fromPrice',
+            'toPrice',
+            'battery',
+            'fromScreen_size',
+            'toScreen_size',
+          ],
         ),
       },
       {
@@ -181,14 +187,45 @@ export class ProductRepo {
         );
       });
     }
-    if (query.filter.type === 'smartphone' && query.filter.battery) {
+    if (query.filter.battery) {
+      if (query.filter.type === 'smartphone') {
+        products = products.filter((product) => {
+          const battery = parseInt(product.description.battery.split(' ')[2]);
+          if (query.filter.battery === 'fast') {
+            return battery >= 20 && battery < 60;
+          } else if (query.filter.battery === 'superfast') {
+            return battery >= 60;
+          }
+        });
+      } else if (query.filter.type === 'tablet') {
+        products = products.filter((product) => {
+          const battery = parseInt(
+            product.description.battery.split(' ')[
+              product.description.battery.split(' ').length - 2
+            ],
+          );
+          if (query.filter.battery === 'fast') {
+            return battery >= 20 && battery < 33;
+          } else if (query.filter.battery === 'superfast') {
+            return battery >= 33;
+          }
+        });
+      }
+    }
+
+    if (
+      query.filter.type === 'tablet' &&
+      query.filter.fromScreen_size &&
+      query.filter.toScreen_size
+    ) {
       products = products.filter((product) => {
-        const battery = parseInt(product.description.battery.split(' ')[2]);
-        if (query.filter.battery === 'fast') {
-          return battery >= 20 && battery < 60;
-        } else if (query.filter.battery === 'superfast') {
-          return battery >= 60;
-        }
+        const screen_size = parseFloat(
+          product.description.screen.split('"')[0],
+        );
+        return (
+          screen_size >= query.filter.fromScreen_size &&
+          screen_size <= query.filter.toScreen_size
+        );
       });
     }
 

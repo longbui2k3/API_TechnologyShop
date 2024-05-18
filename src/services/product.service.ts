@@ -24,6 +24,12 @@ import {
   smartphoneStorages,
   smartphoneTypes,
 } from 'src/utils/filters/smartphoneFilter';
+import {
+  tabletBatteries,
+  tabletBrands,
+  tabletRams,
+  tabletStorages,
+} from 'src/utils/filters/tabletFilter';
 @Injectable()
 class ProductFactory {
   constructor(
@@ -383,9 +389,6 @@ class LaptopService extends ProductService {
       'resolution',
     ]);
 
-    if (Object.keys(query.filter.description).length === 0)
-      query.filter.description = undefined;
-
     // Condition for description
     query.filter.description.ram = query.filter.description.ram
       ? RegExp(`^${ram}`)
@@ -537,8 +540,6 @@ class SmartphoneService extends ProductService {
       'toPrice',
       'battery',
     ]);
-    if (Object.keys(query.filter.description).length === 0)
-      query.filter.description = undefined;
 
     // Condition for description
     query.filter.description.operating_system = operating_system
@@ -606,6 +607,110 @@ class TabletService extends ProductService {
       body.description,
     );
     return await super.modifyProduct(id, body, files);
+  }
+
+  async getAllProducts(query: { filter: any; search: string; sort: string }) {
+    const {
+      brand,
+      fromPrice,
+      toPrice,
+      ram,
+      storage,
+      fromScreen_size,
+      toScreen_size,
+      battery,
+    } = query.filter;
+
+    // check brand
+    if (brand && !tabletBrands.includes(brand)) {
+      throw new BadRequestException('Brand is invalid!');
+    }
+
+    // check price
+    if (fromPrice && !toPrice) {
+      throw new BadRequestException(
+        'Query toPrice is required when having fromPrice!',
+      );
+    }
+    if (!fromPrice && toPrice) {
+      throw new BadRequestException(
+        'Query fromPrice is required when having toPrice!',
+      );
+    }
+
+    if (fromPrice > toPrice) {
+      throw new BadRequestException(
+        'Query toPrice must be greater than query fromPrice!',
+      );
+    }
+
+    // check ram
+    if (ram && !tabletRams.includes(ram)) {
+      throw new BadRequestException('Ram is invalid!');
+    }
+
+    // check storage
+    if (storage && !tabletStorages.includes(storage)) {
+      throw new BadRequestException('Storage is invalid!');
+    }
+
+    // check battery
+    if (battery && !tabletBatteries.includes(battery)) {
+      throw new BadRequestException('Battery is invalid!');
+    }
+
+    // check screen size
+    if (fromScreen_size && !toScreen_size) {
+      throw new BadRequestException(
+        'Query toScreen_size is required when having fromScreen_size!',
+      );
+    }
+    if (!fromScreen_size && toScreen_size) {
+      throw new BadRequestException(
+        'Query fromScreen_size is required when having toScreen_size!',
+      );
+    }
+
+    if (parseFloat(fromScreen_size) > parseFloat(toScreen_size)) {
+      throw new BadRequestException(
+        'Query toScreen_size must be greater than query fromScreen_size!',
+      );
+    }
+
+    const tabletDescription = [
+      'screen',
+      'operating_system',
+      'chip',
+      'ram',
+      'storage',
+      'connect',
+      'front_camera',
+      'rear_camera',
+      // 'battery',
+      'brand',
+    ];
+
+    query.filter.description = removeKeyInObject(query.filter, [
+      'category',
+      '_id',
+      'type',
+      'fromPrice',
+      'toPrice',
+      'fromScreen_size',
+      'toScreen_size',
+      'battery',
+    ]);
+
+    // Condition for description
+    query.filter.description.brand = brand ? RegExp(`^${brand}`) : undefined;
+
+    // Flatten object
+    query.filter = flattenObject(
+      removeKeyInObject(query.filter, [...tabletDescription]),
+    );
+
+    console.log(query);
+    return super.getAllProducts(query);
   }
 }
 
