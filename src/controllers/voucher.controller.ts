@@ -10,6 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
+import { RolesGuard } from 'src/auth/authUtils/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 import { VoucherService } from 'src/services/voucher.service';
 
 @Controller('/api/v1/voucher')
@@ -17,7 +20,8 @@ export class VoucherController {
   constructor(private voucherService: VoucherService) {}
   @Post('/')
   @HttpCode(201)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async createVoucher(
     @Body()
     body: {
@@ -38,7 +42,8 @@ export class VoucherController {
 
   @Patch('/:id')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async updateVoucher(
     @Body()
     body: {

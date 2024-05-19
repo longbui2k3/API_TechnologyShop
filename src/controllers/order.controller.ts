@@ -11,6 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
+import { RolesGuard } from 'src/auth/authUtils/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 import { RequestModel } from 'src/helpers/requestmodel';
 import { OrderService } from 'src/services/order.service';
 
@@ -20,7 +23,8 @@ export class OrderController {
 
   @Post('/')
   @HttpCode(201)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async createOrder(
     @Req() req: RequestModel,
     @Body()
@@ -47,7 +51,8 @@ export class OrderController {
 
   @Get('/user')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async findAllOrdersForUser(@Req() req: RequestModel, @Query() query) {
     return await this.orderService.findAllOrdersForUser({
       user: req.user.userId,
@@ -58,14 +63,16 @@ export class OrderController {
 
   @Get('/')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async findAllOrders(@Query() query) {
     return await this.orderService.findAllOrders(query);
   }
 
   @Patch('/:id/status')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User, Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async updateStatusOrders(
     @Param('id') id: string,
     @Body() body: { status: string },

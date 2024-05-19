@@ -16,6 +16,9 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
+import { RolesGuard } from 'src/auth/authUtils/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 import { RequestModel } from 'src/helpers/requestmodel';
 import { CommentService } from 'src/services/comment.service';
 
@@ -25,7 +28,8 @@ export class CommentController {
 
   @Post()
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   @UseInterceptors(FilesInterceptor('images', 6))
   async createComment(
     @Req() req: RequestModel,
@@ -50,7 +54,8 @@ export class CommentController {
 
   @Delete('/:id')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async deleteComment(@Param('id') id: string) {
     return await this.commentService.deleteComment(id);
   }
@@ -67,7 +72,8 @@ export class CommentController {
 
   @Patch('/:comment/like')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async likeComment(
     @Param('comment') comment: string,
     @Req() req: RequestModel,
@@ -77,7 +83,8 @@ export class CommentController {
 
   @Patch('/:comment/unlike')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async unlikeComment(
     @Param('comment') comment: string,
     @Req() req: RequestModel,

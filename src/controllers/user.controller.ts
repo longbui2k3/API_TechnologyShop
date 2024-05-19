@@ -12,6 +12,9 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
+import { RolesGuard } from 'src/auth/authUtils/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 import { RequestModel } from 'src/helpers/requestmodel';
 import { UserService } from 'src/services/user.service';
 
@@ -21,14 +24,16 @@ export class UserController {
 
   @Get('/')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async getUserInfo(@Req() req: RequestModel) {
     return await this.userService.getUserInfo(req.user.userId);
   }
 
   @Patch('profile')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   @UseInterceptors(FileInterceptor('avatar'))
   async updateUserInfo(
     @Req() req: RequestModel,
@@ -61,7 +66,8 @@ export class UserController {
 
   @Patch('password')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async updatePassword(
     @Body()
     body: {

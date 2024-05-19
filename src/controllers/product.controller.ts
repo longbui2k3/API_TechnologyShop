@@ -17,6 +17,9 @@ import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
 import ProductFactory from 'src/services/product.service';
 import _ from 'lodash';
 import { removeKeyInObject } from 'src/utils';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
+import { RolesGuard } from 'src/auth/authUtils/role.guard';
 
 @Controller('/api/v1/product')
 export class ProductController {
@@ -24,7 +27,8 @@ export class ProductController {
 
   @Post('/')
   @HttpCode(201)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   @UseInterceptors(FilesInterceptor('images', 6))
   async addProduct(
     @Body()
@@ -58,7 +62,8 @@ export class ProductController {
 
   @Patch('/:id')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   @UseInterceptors(FilesInterceptor('addedimages', 6))
   async updateProduct(
     @Param('id') id: string,

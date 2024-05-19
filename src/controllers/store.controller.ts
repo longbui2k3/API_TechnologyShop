@@ -14,6 +14,9 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
+import { RolesGuard } from 'src/auth/authUtils/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 import { RequestModel } from 'src/helpers/requestmodel';
 import { StoreService } from 'src/services/store.service';
 
@@ -23,7 +26,8 @@ export class StoreController {
 
   @Post()
   @HttpCode(201)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   @UseInterceptors(FilesInterceptor('images', 6))
   async createStore(
     @Body()
@@ -49,7 +53,8 @@ export class StoreController {
 
   @Patch('/:id')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   @UseInterceptors(FilesInterceptor('addedimages', 6))
   async updateStore(
     @Param('id') id: string,

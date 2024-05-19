@@ -10,6 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
+import { RolesGuard } from 'src/auth/authUtils/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 import { RequestModel } from 'src/helpers/requestmodel';
 import { CartService } from 'src/services/cart.service';
 
@@ -19,14 +22,16 @@ export class CartController {
 
   @Get('/')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async getAllCarts(@Req() req: RequestModel) {
     return this.cartService.getAllCarts({ userId: req.user.userId });
   }
 
   @Post('/')
   @HttpCode(201)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async addToCart(
     @Req() req: RequestModel,
     @Body() body: { product: string; quantity: number },
@@ -40,7 +45,8 @@ export class CartController {
 
   @Patch('/quantity')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async updateQuantityCart(
     @Req() req: RequestModel,
     @Body() body: { product: string; quantity: number },
@@ -54,7 +60,8 @@ export class CartController {
 
   @Patch('/item')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async removeItemFromCart(
     @Req() req: RequestModel,
     @Body() body: { product: string },
@@ -67,7 +74,8 @@ export class CartController {
 
   @Patch('/items')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async removeItemsFromCart(
     @Req() req: RequestModel,
     @Body() body: { products: string[] },
@@ -80,7 +88,8 @@ export class CartController {
 
   @Patch('/allitems')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async removeAllItemsFromCart(@Req() req: RequestModel) {
     return await this.cartService.removeAllItemsFromCart({
       userId: req.user.userId,

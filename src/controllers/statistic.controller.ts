@@ -18,14 +18,16 @@ export class StatisticController {
 
   @Get('/revenueByYear')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async getRevenueByYear(@Query('year') year: number) {
     return await this.statisticService.getRevenueByYear(year);
   }
 
   @Get('/revenueByMonth')
   @HttpCode(200)
-  @UseGuards(AuthenticationGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
   async getRevenueByMonth(
     @Query('month') month: number,
     @Query('year') year: number,
