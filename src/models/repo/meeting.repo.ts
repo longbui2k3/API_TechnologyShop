@@ -10,4 +10,8 @@ export class MeetingRepo {
   async createMeeting(id: string, token: string) {
     return await this.meetingModel.create({ id, token });
   }
+
+  async getAllMeetings() {
+    return await this.meetingModel.find().sort({ createdAt: -1 });
+  }
 }

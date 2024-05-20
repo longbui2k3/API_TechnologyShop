@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthenticationGuard } from 'src/auth/authUtils/authentication.guard';
 import { RolesGuard } from 'src/auth/authUtils/role.guard';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -15,5 +22,13 @@ export class MeetingController {
   @UseGuards(AuthenticationGuard, RolesGuard)
   async createMeeting(@Body() body: { id: string; token: string }) {
     return await this.meetingService.createMeeting(body.id, body.token);
+  }
+
+  @Get('/')
+  @HttpCode(200)
+  @Roles(Role.User)
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  async getAllMeetings() {
+    return await this.meetingService.getAllMeetings();
   }
 }

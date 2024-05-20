@@ -14,4 +14,14 @@ export class MeetingService {
       },
     };
   }
+
+  async getAllMeetings() {
+    return {
+      message: 'Get all meetings successfully!',
+      status: 200,
+      metadata: {
+        meetings: await this.meetingRepo.getAllMeetings(),
+      },
+    };
+  }
 }
