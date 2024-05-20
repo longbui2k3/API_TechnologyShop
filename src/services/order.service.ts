@@ -266,6 +266,7 @@ export class OrderService {
           });
         }),
       );
+      await this.orderRepo.updateDeliveredDate(order);
     }
 
     return {

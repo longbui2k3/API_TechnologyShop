@@ -49,7 +49,7 @@ export class CategoryController {
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|webp)$/,
         })
-        .addMaxSizeValidator({ maxSize: 300000 })
+        .addMaxSizeValidator({ maxSize: 5000000 })
         .build({
           fileIsRequired: false,
         }),
@@ -72,7 +72,7 @@ export class CategoryController {
         .addFileTypeValidator({
           fileType: '.(png|jpeg|jpg)',
         })
-        .addMaxSizeValidator({ maxSize: 50000 })
+        .addMaxSizeValidator({ maxSize: 5000000 })
         .build({
           fileIsRequired: false,
         }),

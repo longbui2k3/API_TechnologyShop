@@ -34,4 +34,12 @@ export class StatisticController {
   ) {
     return await this.statisticService.getRevenueByMonth(month, year);
   }
+
+  @Get('/soldOfProducts')
+  @HttpCode(200)
+  @Roles(Role.Admin)
+  @UseGuards(AuthenticationGuard, RolesGuard)
+  async getSoldOfProducts(@Query('year') year: number) {
+    return await this.statisticService.getSoldOfProducts(year);
+  }
 }

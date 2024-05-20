@@ -38,7 +38,7 @@ export class StoreController {
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|webp)$/,
         })
-        .addMaxSizeValidator({ maxSize: 200000 })
+        .addMaxSizeValidator({ maxSize: 5000000 })
         .build({
           fileIsRequired: false,
         }),
@@ -71,7 +71,7 @@ export class StoreController {
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|webp)$/,
         })
-        .addMaxSizeValidator({ maxSize: 200000 })
+        .addMaxSizeValidator({ maxSize: 5000000 })
         .build({
           fileIsRequired: false,
         }),

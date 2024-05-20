@@ -1,7 +1,11 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { Order } from '../order.model';
-import { daysOfMonth, removeUndefinedInObject } from 'src/utils';
+import {
+  convertToObjectId,
+  daysOfMonth,
+  removeUndefinedInObject,
+} from 'src/utils';
 import { BadRequestException } from '@nestjs/common';
 
 export class OrderRepo {
@@ -102,6 +106,18 @@ export class OrderRepo {
     const updatedOrder = await this.orderModel.findByIdAndUpdate(
       order,
       { status },
+      { new: true },
+    );
+    return updatedOrder;
+  }
+
+  async updateDeliveredDate(order: string) {
+    const updatedOrder = await this.orderModel.findByIdAndUpdate(
+      order,
+      {
+        deliveredDate: Date.now(),
+        paymentStatus: 'paid',
+      },
       { new: true },
     );
     return updatedOrder;
@@ -235,5 +251,32 @@ export class OrderRepo {
     statistics[0].days = days;
 
     return statistics[0];
+  }
+
+  async getSoldOfProduct(product: string, year: number) {
+    const orders = await this.orderModel.aggregate([
+      {
+        $match: {
+          deliveredDate: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+          status: 'delivered',
+          'products.product': convertToObjectId(product),
+        },
+      },
+    ]);
+
+    return orders
+      .map((order) => {
+        let sold = 0;
+        order.products.forEach((productOrder) => {
+          if (productOrder.product.toString() === product.toString()) {
+            sold += productOrder.quantity;
+          }
+        });
+        return sold;
+      })
+      .reduce((a, b) => a + b, 0);
   }
 }

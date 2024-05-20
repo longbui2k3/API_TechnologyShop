@@ -39,7 +39,7 @@ export class CommentController {
         .addFileTypeValidator({
           fileType: /(jpg|jpeg|png|webp)$/,
         })
-        .addMaxSizeValidator({ maxSize: 100000 })
+        .addMaxSizeValidator({ maxSize: 5000000 })
         .build({
           fileIsRequired: false,
         }),
