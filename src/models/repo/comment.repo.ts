@@ -4,6 +4,7 @@ import { Comment } from '../comment.model';
 import { UploadFiles } from 'src/utils/uploadFiles';
 import { BadRequestException } from '@nestjs/common';
 import { getUnselectData, removeUndefinedInObject } from 'src/utils';
+import { compact } from 'lodash';
 
 export class CommentRepo {
   constructor(@InjectModel('Comment') private commentModel: Model<Comment>) {}
@@ -22,6 +23,7 @@ export class CommentRepo {
       product: string;
       comment: string;
       rating: number;
+      parentComment: string;
     },
     files: Array<Express.Multer.File> | [],
   ) {
@@ -35,11 +37,97 @@ export class CommentRepo {
         return image;
       }),
     );
-    return await this.commentModel.create({ ...body, images });
+
+    const parentComment = await this.commentModel.findById(body.parentComment);
+
+    let left: number;
+    if (parentComment) {
+      left = parentComment.right;
+      await this.commentModel.updateMany(
+        {
+          product: body.product,
+          left: {
+            $gte: left,
+          },
+        },
+        {
+          $inc: {
+            left: 2,
+          },
+        },
+      );
+      await this.commentModel.updateMany(
+        {
+          product: body.product,
+          right: {
+            $gte: left,
+          },
+        },
+        {
+          $inc: {
+            right: 2,
+          },
+        },
+      );
+    } else {
+      const maxRightValue = await this.commentModel.findOne(
+        { product: body.product },
+        'right',
+        { sort: { right: -1 } },
+      );
+      if (maxRightValue) {
+        left = maxRightValue.right + 1;
+      } else {
+        left = 1;
+      }
+    }
+
+    let right = left + 1;
+    return await this.commentModel.create({
+      ...body,
+      images,
+      parentComment: parentComment?._id,
+      left,
+      right,
+    });
   }
 
-  async deleteComment(id: string) {
-    await this.commentModel.findByIdAndDelete(id);
+  async deleteComment(body: { id: string; user: string }) {
+    const comment = await this.commentModel.findOne({
+      _id: body.id,
+      user: body.user,
+    });
+
+    await this.commentModel.deleteMany({
+      product: comment.product,
+      left: { $gte: comment.left },
+      right: { $lte: comment.right },
+    });
+
+    let sub: number = comment.right - comment.left + 1;
+    await this.commentModel.updateMany(
+      {
+        product: comment.product,
+        left: { $gte: comment.right },
+      },
+      {
+        $inc: {
+          left: -sub,
+        },
+      },
+    );
+
+    await this.commentModel.updateMany(
+      {
+        product: comment.product,
+        right: { $gte: comment.right },
+      },
+      {
+        $inc: {
+          right: -sub,
+        },
+      },
+    );
   }
 
   async getAllComments(
@@ -51,12 +139,22 @@ export class CommentRepo {
     const sortBy: Record<string, 1 | -1> = Object.fromEntries(
       [sort].map((item) => [item, -1]),
     );
-    return await this.commentModel
-      .find(removeUndefinedInObject({ product, ...filter }))
+
+    let comments: any = await this.commentModel
+      .find(removeUndefinedInObject({ product, ...filter, parentComment: null }))
       .populate({ path: 'user', select: { name: 1, avatar: 1 } })
       .sort(sortBy)
       .select(getUnselectData(unselect))
       .lean();
+    comments = await Promise.all(
+      comments.map(async (comment: any) => {
+        comment.repComments = await this.commentModel.find({
+          parentComment: comment._id,
+        });
+        return comment;
+      }),
+    );
+    return comments;
   }
   async likeComment(id: string, userId: string) {
     const comment = await this.commentModel.findOne({

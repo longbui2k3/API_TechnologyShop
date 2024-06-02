@@ -33,7 +33,13 @@ export class CommentController {
   @UseInterceptors(FilesInterceptor('images', 6))
   async createComment(
     @Req() req: RequestModel,
-    @Body() body: { product: string; comment: string; rating: number },
+    @Body()
+    body: {
+      product: string;
+      comment: string;
+      rating: number;
+      parentComment: string;
+    },
     @UploadedFiles(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
@@ -56,8 +62,8 @@ export class CommentController {
   @HttpCode(200)
   @Roles(Role.User)
   @UseGuards(AuthenticationGuard, RolesGuard)
-  async deleteComment(@Param('id') id: string) {
-    return await this.commentService.deleteComment(id);
+  async deleteComment(@Req() req: RequestModel, @Param('id') id: string) {
+    return await this.commentService.deleteComment({id, user: req.user.userId});
   }
 
   @Get('/')

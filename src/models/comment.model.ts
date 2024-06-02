@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from './user.model';
 import { Product } from './product.model';
+import { LargeNumberLike } from 'crypto';
 
 const COLLECTION_NAME = 'comments';
 export type CommentDocument = HydratedDocument<Comment>;
@@ -53,6 +54,27 @@ export class Comment {
     default: [],
   })
   images: string[];
+
+  @Prop({
+    type: Number,
+    default: 1,
+    required: true,
+  })
+  left: number;
+
+  @Prop({
+    type: Number,
+    default: 2,
+    required: true,
+  })
+  right: number;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment',
+    default: null,
+  })
+  parentComment: Comment | null;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

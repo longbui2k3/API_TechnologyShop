@@ -10,12 +10,23 @@ export class CommentService {
   ) {}
 
   async createComment(
-    body: { user: string; product: string; comment: string; rating: number },
+    body: {
+      user: string;
+      product: string;
+      comment: string;
+      rating: number;
+      parentComment: string;
+    },
     files: Array<Express.Multer.File> | [],
   ) {
     const checkProductExists = await this.productRepo.checkProductExists(
       body.product,
     );
+    if (body.parentComment) {
+      const checkCommentExists = await this.commentRepo.checkCommentExists(
+        body.parentComment,
+      );
+    }
 
     return {
       message: 'Create comment successfully!',
@@ -26,9 +37,9 @@ export class CommentService {
     };
   }
 
-  async deleteComment(id: string) {
-    const checkCommentExists = await this.commentRepo.checkCommentExists(id);
-    await this.commentRepo.deleteComment(id);
+  async deleteComment(body: {id: string; user: string;}) {
+    const checkCommentExists = await this.commentRepo.checkCommentExists(body.id);
+    await this.commentRepo.deleteComment(body);
     return {
       message: 'Delete comment successfully!',
       status: 200,
@@ -43,7 +54,12 @@ export class CommentService {
       message: 'Get all comments successfully!',
       status: 200,
       metadata: {
-        products: await this.commentRepo.getAllComments(product, filter, ['__v', 'updatedAt'], sort),
+        products: await this.commentRepo.getAllComments(
+          product,
+          filter,
+          ['__v', 'updatedAt'],
+          sort,
+        ),
       },
     };
   }
