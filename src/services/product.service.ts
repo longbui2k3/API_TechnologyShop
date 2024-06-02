@@ -391,14 +391,14 @@ class LaptopService extends ProductService {
 
     // Condition for description
     query.filter.description.ram = query.filter.description.ram
-      ? RegExp(`^${ram}`)
+      ? RegExp(`^${ram ? ram : ''}`)
       : undefined;
 
     query.filter.description.screen = RegExp(
       `${screen_size ? `^${screen_size}.*` : ''}${resolution ? resolution : ''}`,
     );
     query.filter.description.cpu = RegExp(`^${cpu ? cpu : ''}`);
-    query.filter.description.hard_drive = RegExp(`^${hard_drive}`);
+    query.filter.description.hard_drive = RegExp(`^${hard_drive ? hard_drive : ''}`);
     // Flatten object
     query.filter = flattenObject(
       removeKeyInObject(query.filter, [
@@ -543,7 +543,7 @@ class SmartphoneService extends ProductService {
 
     // Condition for description
     query.filter.description.operating_system = operating_system
-      ? RegExp(`^${operating_system}`)
+      ? RegExp(`^${operating_system ? operating_system : ''}`)
       : undefined;
 
     query.filter = flattenObject(
@@ -702,7 +702,7 @@ class TabletService extends ProductService {
     ]);
 
     // Condition for description
-    query.filter.description.brand = brand ? RegExp(`^${brand}`) : undefined;
+    query.filter.description.brand = brand ? RegExp(`^${brand ? brand : ''}`) : undefined;
 
     // Flatten object
     query.filter = flattenObject(
